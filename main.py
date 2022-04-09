@@ -3,11 +3,11 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-# TODO: PUT/PATCH request - update
-# TODO: DELETE request - delete
 # TODO: deal with case sensitivity for search
 # TODO: improve search functionality (search by different columns, search for word within a description)
 # TODO: make sure postman is up to date, create documentation
+# TODO: update HTTP code responses
+
 # TODO: use Flask RESTful extension
 # TODO: requirements file, README
 
@@ -106,6 +106,47 @@ def add_park():
     return jsonify({
         "Message": "New park added to database"
     })
+
+
+# PATCH request - update
+# TODO: should GET be a method?
+@app.route("/edit-features/<int:park_id>", methods=["GET", "PATCH"])
+def edit_features(park_id):
+    features_to_add = request.args.get('features')
+    park_to_edit = Park.query.get(park_id)
+    if park_to_edit:
+        park_to_edit.other_features = features_to_add
+        db.session.commit()
+        return jsonify({
+            "Message": "Features updated"
+        })
+    else:
+        return jsonify({
+            "Message": "Park not found"
+        })
+
+
+# DELETE request - delete
+# TODO: should GET be a method?
+@app.route("/delete-park/<int:park_id>", methods=["GET", "DELETE"])
+def delete_park(park_id):
+    park_to_delete = Park.query.get(park_id)
+    if park_to_delete:
+        api_key = request.args.get('api-key')
+        if api_key == "SecretPassword":
+            db.session.delete(park_to_delete)
+            db.session.commit()
+            return jsonify({
+                "Message": "Cafe deleted"
+            })
+        else:
+            return jsonify({
+                "Message": "API key not accepted"
+            })
+    else:
+        return jsonify({
+            "Message": "Park not found"
+        })
 
 
 if __name__ == '__main__':
