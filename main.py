@@ -3,13 +3,12 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-# TODO: deal with case sensitivity for search
-# TODO: improve search functionality (search by different columns, search for word within a description)
-# TODO: make sure postman is up to date, create documentation
 # TODO: update HTTP code responses
-
-# TODO: use Flask RESTful extension
 # TODO: requirements file, README
+# TODO: use Flask RESTful extension
+
+# TODO: improve case sensitivity for search
+# TODO: re-address boolean fields in add
 
 load_dotenv()
 
@@ -75,9 +74,9 @@ def show_all_parks():
 
 
 # GET request - search
-@app.route("/search")
-def search():
-    parks_found = Park.query.filter_by(borough=request.args.get('area')).all()
+@app.route("/search-by-borough")
+def search_by_borough():
+    parks_found = Park.query.filter(Park.borough.contains(request.args.get('area'))).all()
     if parks_found:
         return jsonify(parks=[park.to_dict() for park in parks_found])
     else:
@@ -86,9 +85,19 @@ def search():
         })
 
 
+# GET request - search
+@app.route("/search-by-name")
+def search_by_name():
+    parks_found = Park.query.filter(Park.park_name.contains(request.args.get('name'))).all()
+    if parks_found:
+        return jsonify(parks=[park.to_dict() for park in parks_found])
+    else:
+        return jsonify({
+            "Message": "No park name matches found"
+        })
+
+
 # POST request - add
-# TODO: do I need to verify GET v POST request?
-# TODO: improve boolean parameter inputs
 @app.route("/add", methods=["POST"])
 def add_park():
     db.session.add(
@@ -109,8 +118,7 @@ def add_park():
 
 
 # PATCH request - update
-# TODO: should GET be a method?
-@app.route("/edit-features/<int:park_id>", methods=["GET", "PATCH"])
+@app.route("/edit-features/<int:park_id>", methods=["PATCH"])
 def edit_features(park_id):
     features_to_add = request.args.get('features')
     park_to_edit = Park.query.get(park_id)
@@ -127,8 +135,7 @@ def edit_features(park_id):
 
 
 # DELETE request - delete
-# TODO: should GET be a method?
-@app.route("/delete-park/<int:park_id>", methods=["GET", "DELETE"])
+@app.route("/delete-park/<int:park_id>", methods=["DELETE"])
 def delete_park(park_id):
     park_to_delete = Park.query.get(park_id)
     if park_to_delete:
@@ -137,7 +144,7 @@ def delete_park(park_id):
             db.session.delete(park_to_delete)
             db.session.commit()
             return jsonify({
-                "Message": "Cafe deleted"
+                "Message": "Park deleted"
             })
         else:
             return jsonify({
