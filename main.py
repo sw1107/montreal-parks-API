@@ -3,9 +3,11 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-# TODO: update HTTP code responses
-# TODO: requirements file, README
+# update HTTP code responses
+# add requirements file
+# add README
 # TODO: use Flask RESTful extension
+# TODO: update README
 
 # TODO: improve case sensitivity for search
 # TODO: re-address boolean fields in add
@@ -70,7 +72,7 @@ def home():
 def show_all_parks():
     all_parks = db.session.query(Park).all()
     parks = [park.to_dict() for park in all_parks]
-    return jsonify(parks)
+    return jsonify(parks), 200
 
 
 # GET request - search
@@ -78,11 +80,11 @@ def show_all_parks():
 def search_by_borough():
     parks_found = Park.query.filter(Park.borough.contains(request.args.get('area'))).all()
     if parks_found:
-        return jsonify(parks=[park.to_dict() for park in parks_found])
+        return jsonify(parks=[park.to_dict() for park in parks_found]), 200
     else:
         return jsonify({
             "Message": "No parks listed in that borough"
-        })
+        }), 404
 
 
 # GET request - search
@@ -90,11 +92,11 @@ def search_by_borough():
 def search_by_name():
     parks_found = Park.query.filter(Park.park_name.contains(request.args.get('name'))).all()
     if parks_found:
-        return jsonify(parks=[park.to_dict() for park in parks_found])
+        return jsonify(parks=[park.to_dict() for park in parks_found]), 200
     else:
         return jsonify({
             "Message": "No park name matches found"
-        })
+        }), 404
 
 
 # POST request - add
@@ -114,7 +116,7 @@ def add_park():
     db.session.commit()
     return jsonify({
         "Message": "New park added to database"
-    })
+    }), 200
 
 
 # PATCH request - update
@@ -127,11 +129,11 @@ def edit_features(park_id):
         db.session.commit()
         return jsonify({
             "Message": "Features updated"
-        })
+        }), 200
     else:
         return jsonify({
             "Message": "Park not found"
-        })
+        }), 404
 
 
 # DELETE request - delete
@@ -145,15 +147,15 @@ def delete_park(park_id):
             db.session.commit()
             return jsonify({
                 "Message": "Park deleted"
-            })
+            }), 200
         else:
             return jsonify({
                 "Message": "API key not accepted"
-            })
+            }), 403
     else:
         return jsonify({
             "Message": "Park not found"
-        })
+        }), 404
 
 
 if __name__ == '__main__':
