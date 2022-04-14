@@ -2,7 +2,7 @@
 
 ## Description
 
-For this project I have created an API to access and contribute to information about Montreal parks.
+For this project I have used Python and Flask RESTful to create an API to access and contribute to information about Montreal parks.
 
 Users can make a number of requests including:
 * GET - Get all parks
@@ -14,7 +14,7 @@ Users can make a number of requests including:
 
 Data is held in an SQL database and accessed using SQLAlchemy.
 
-API documentation is created and published using Postman.
+API documentation is created and published using Postman (and was also used for testing)
 
 ## Technologies
 
